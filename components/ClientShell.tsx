@@ -4,18 +4,16 @@ import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import LegalModal from './LegalModal';
 import CustomCursor from './CustomCursor';
 import MobileCtaBar from './MobileCtaBar';
+import { useDeviceTier } from '../hooks/useDeviceTier';
 
 const Scene3D = lazy(() => import('./Scene3D'));
 
 export default function ClientShell() {
   const [legalPage, setLegalPage] = useState<'impressum' | 'datenschutz' | null>(null);
   const [showScene, setShowScene] = useState(false);
-  const [isMobile, setIsMobile] = useState(true);
+  const tier = useDeviceTier();
+  const isMobile = tier !== 'high';
   const gsapReady = useRef(false);
-
-  useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
-  }, []);
 
   // Legal modal events
   useEffect(() => {
@@ -29,14 +27,25 @@ export default function ClientShell() {
     };
   }, []);
 
-  // Scene3D: only on first mousemove, desktop only
+  // Scene3D trigger — desktop: after idle (keeps LCP clean) / mobile: auto after 600ms or first touch
   useEffect(() => {
-    const show = () => {
-      if (window.innerWidth >= 768) setShowScene(true);
-    };
-    window.addEventListener('mousemove', show, { once: true });
-    return () => window.removeEventListener('mousemove', show);
-  }, []);
+    if (tier === 'high') {
+      if ('requestIdleCallback' in window) {
+        const id = requestIdleCallback(() => setShowScene(true), { timeout: 2000 });
+        return () => cancelIdleCallback(id);
+      }
+      const t = setTimeout(() => setShowScene(true), 200);
+      return () => clearTimeout(t);
+    } else {
+      const show = () => setShowScene(true);
+      const timer = setTimeout(show, 600);
+      window.addEventListener('touchstart', show, { once: true, passive: true });
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener('touchstart', show);
+      };
+    }
+  }, [tier]);
 
   // GSAP: only on first scroll or click
   useEffect(() => {
@@ -48,7 +57,6 @@ export default function ClientShell() {
       const { ScrollTrigger } = await import('gsap/ScrollTrigger');
       gsap.registerPlugin(ScrollTrigger);
 
-      // Scroll animations
       gsap.utils.toArray<HTMLElement>('.pop-in').forEach((el) => {
         gsap.fromTo(el,
           { opacity: 0, y: 50, scale: 0.95 },
@@ -76,7 +84,7 @@ export default function ClientShell() {
         });
       });
 
-      if (window.innerWidth >= 768) {
+      if (!isMobile) {
         const setupHover = () => {
           gsap.utils.toArray<HTMLElement>('.tilt-card').forEach((card) => {
             card.style.transformStyle = 'preserve-3d';
@@ -108,12 +116,16 @@ export default function ClientShell() {
       window.removeEventListener('scroll', init);
       window.removeEventListener('pointerdown', init);
     };
-  }, []);
+  }, [isMobile]);
 
   return (
     <>
       {!isMobile && <CustomCursor />}
-      {showScene && <Suspense fallback={null}><Scene3D /></Suspense>}
+      {showScene && (
+        <Suspense fallback={null}>
+          <Scene3D tier={tier} />
+        </Suspense>
+      )}
       {legalPage && <LegalModal page={legalPage} onClose={() => setLegalPage(null)} />}
       <MobileCtaBar />
     </>
