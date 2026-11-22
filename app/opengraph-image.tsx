@@ -1,6 +1,5 @@
 import { ImageResponse } from 'next/og';
 
-export const runtime = 'edge';
 export const alt = 'Veyro Labs — Websites die wirken';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
@@ -37,12 +36,12 @@ export default function OGImage() {
         </div>
 
         {/* Subline */}
-        <div style={{ fontSize: '22px', color: '#888888', maxWidth: '680px', lineHeight: 1.5 }}>
+        <div style={{ fontSize: '22px', color: '#a3a3a3', maxWidth: '680px', lineHeight: 1.5 }}>
           Design, Code und Strategie aus einer Hand. Kein Agentur-Overhead, keine Wartezeiten.
         </div>
 
         {/* URL */}
-        <div style={{ position: 'absolute', bottom: '80px', right: '80px', fontSize: '18px', color: '#555555' }}>
+        <div style={{ position: 'absolute', bottom: '80px', right: '80px', fontSize: '18px', color: '#8a8a8a' }}>
           veyro-labs.com
         </div>
       </div>

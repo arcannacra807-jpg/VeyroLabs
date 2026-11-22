@@ -1,0 +1,24 @@
+# Veyro Labs
+
+> Custom-coded web design and development (Next.js, React, TypeScript, Three.js) by Arcan Bereket in Hamburg, Germany. No templates, no website builders, no agency hand-offs, full code ownership.
+
+## Overview
+- **Founder & Developer:** Arcan Bereket (Hamburg, Germany)
+- **Languages:** German (`de`), English (`en`)
+- **Contact:** veyro-labs@gmx.de | +49 176 5590599
+- **Tech Stack:** Next.js 16, React 19, TypeScript, Tailwind CSS 4, Three.js, WebGL Shaders, GSAP
+- **Business Model:** Fixed upfront pricing in quote, 100% code ownership on handover, no recurring subscription or platform lock-in. Small business under § 19 UStG (no VAT charged).
+
+## Packages & Guide Prices
+- **Landing Page (from €1,200):** High-converting custom-coded landing page, 95+ Lighthouse score, <1s load time, technical SEO foundation, contact form included. Typical turnaround: 5–7 business days.
+- **Website (€2,500 – €4,500):** Up to 5 custom pages, memorable 3D & animations, optional CMS integration, technical SEO, walkthrough on handover. Typical turnaround: 2–4 weeks.
+- **Premium Custom (from €6,000):** Full brand identity (logo, colors, typography, voice), custom 3D scenes & shaders, strategy, direct post-launch support.
+
+## Key Pages
+- [Startseite (Deutsch)](https://veyro-labs.com/de)
+- [Home (English)](https://veyro-labs.com/en)
+- [Website erstellen lassen](https://veyro-labs.com/de/website-erstellen-lassen)
+- [Webdesigner Hamburg](https://veyro-labs.com/de/webdesigner-hamburg)
+- [Hire a Next.js & Three.js Developer](https://veyro-labs.com/en/hire-nextjs-developer)
+- [Impressum / Legal Notice](https://veyro-labs.com/de/impressum)
+- [Datenschutzerklärung / Privacy Policy](https://veyro-labs.com/de/datenschutz)

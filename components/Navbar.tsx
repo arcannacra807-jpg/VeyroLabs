@@ -6,16 +6,16 @@ import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Navbar() {
   const t = useTranslations('nav');
-  const [scrolled,     setScrolled]     = useState(false);
-  const [mobileOpen,   setMobileOpen]   = useState(false);
-  const [activeSlide,  setActiveSlide]  = useState('');
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeSlide, setActiveSlide] = useState('');
   const progressRef = useRef<HTMLDivElement>(null);
 
   const NAV_LINKS = [
     { label: t('services'), href: '#leistungen', slide: 'services' },
-    { label: t('process'),  href: '#ablauf',     slide: 'process'  },
-    { label: t('pricing'),  href: '#preis',      slide: 'pricing'  },
-    { label: t('contact'),  href: '#kontakt',    slide: 'contact'  },
+    { label: t('process'), href: '#ablauf', slide: 'process' },
+    { label: t('pricing'), href: '#preis', slide: 'pricing' },
+    { label: t('contact'), href: '#kontakt', slide: 'contact' },
   ];
 
   useEffect(() => {
@@ -46,17 +46,21 @@ export default function Navbar() {
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [mobileOpen]);
 
   return (
     <nav
+      aria-label="Primary"
       className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${
         scrolled ? 'bg-bg/80 backdrop-blur-xl border-b border-border' : 'bg-transparent'
       }`}
     >
       <div
         ref={progressRef}
+        aria-hidden="true"
         className="absolute bottom-0 left-0 h-[1.5px] bg-accent/50 transition-[width] duration-100 pointer-events-none"
         style={{ width: '0%' }}
       />
@@ -80,7 +84,7 @@ export default function Navbar() {
               >
                 {link.label}
                 {isActive && (
-                  <span className="absolute -bottom-1 left-0 right-0 h-px bg-accent rounded-full" />
+                  <span className="absolute -bottom-1 left-0 right-0 h-px bg-accent rounded-full" aria-hidden="true" />
                 )}
               </a>
             );
@@ -91,7 +95,7 @@ export default function Navbar() {
             className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-display font-bold rounded-xl bg-accent text-bg transition-all duration-300 hover:shadow-glow hover:-translate-y-0.5"
           >
             {t('cta')}
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
               <path d="M1.5 6h9m0 0L7 2.5M10.5 6 7 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </a>
@@ -99,11 +103,13 @@ export default function Navbar() {
 
         {/* Mobile hamburger */}
         <button
+          type="button"
           onClick={() => setMobileOpen(!mobileOpen)}
           className="md:hidden relative z-[110] p-2 -mr-2 text-white"
           aria-label="Menu"
+          aria-expanded={mobileOpen}
         >
-          <div className="w-5 flex flex-col gap-1.5">
+          <div className="w-5 flex flex-col gap-1.5" aria-hidden="true">
             <span className={`h-px bg-white transition-all duration-300 ${mobileOpen ? 'rotate-45 translate-y-[3.5px]' : ''}`} />
             <span className={`h-px bg-white transition-all duration-300 ${mobileOpen ? '-rotate-45 -translate-y-[3.5px]' : ''}`} />
           </div>
@@ -112,6 +118,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       <div
+        aria-hidden={!mobileOpen}
         className={`fixed inset-0 z-[105] bg-bg md:hidden flex flex-col items-center justify-center gap-6 transition-all duration-500 ease-out ${
           mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
@@ -120,14 +127,15 @@ export default function Navbar() {
           <a
             key={link.href}
             href={link.href}
+            tabIndex={mobileOpen ? 0 : -1}
             onClick={() => setMobileOpen(false)}
             className={`font-display text-2xl font-bold transition-all duration-300 ${
               activeSlide === link.slide ? 'text-accent' : 'text-white hover:text-accent'
             }`}
             style={{
               transitionDelay: mobileOpen ? `${i * 60}ms` : '0ms',
-              opacity:    mobileOpen ? 1 : 0,
-              transform:  mobileOpen ? 'translateY(0)' : 'translateY(12px)',
+              opacity: mobileOpen ? 1 : 0,
+              transform: mobileOpen ? 'translateY(0)' : 'translateY(12px)',
             }}
           >
             {link.label}
@@ -138,13 +146,14 @@ export default function Navbar() {
           className="flex flex-col items-center gap-3 mt-4"
           style={{
             transitionDelay: mobileOpen ? '240ms' : '0ms',
-            opacity:   mobileOpen ? 1 : 0,
+            opacity: mobileOpen ? 1 : 0,
             transform: mobileOpen ? 'translateY(0)' : 'translateY(12px)',
             transition: 'opacity 300ms, transform 300ms',
           }}
         >
           <a
             href="#kontakt"
+            tabIndex={mobileOpen ? 0 : -1}
             onClick={() => setMobileOpen(false)}
             className="btn-primary"
           >

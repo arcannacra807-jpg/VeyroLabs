@@ -6,13 +6,13 @@ import { useRouter, usePathname } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 
 const LOCALE_LABELS: Record<string, string> = {
-  de: 'DE', en: 'EN', es: 'ES', fr: 'FR', pt: 'PT',
-  ar: 'AR', zh: '中文', ja: '日本語', ru: 'RU', nl: 'NL', it: 'IT', tr: 'TR',
+  de: 'DE',
+  en: 'EN',
 };
 
 const LOCALE_NAMES: Record<string, string> = {
-  de: 'Deutsch', en: 'English', es: 'Español', fr: 'Français', pt: 'Português',
-  ar: 'العربية', zh: '中文', ja: '日本語', ru: 'Русский', nl: 'Nederlands', it: 'Italiano', tr: 'Türkçe',
+  de: 'Deutsch',
+  en: 'English',
 };
 
 export default function LanguageSwitcher() {
@@ -40,25 +40,35 @@ export default function LanguageSwitcher() {
   return (
     <div ref={ref} className="relative">
       <button
+        type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-display font-bold text-muted hover:text-white border border-border hover:border-border-light transition-all duration-200"
         aria-label="Switch language"
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-display font-bold text-muted hover:text-white border border-border hover:border-border-light transition-all duration-200"
       >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-accent flex-shrink-0">
-          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
-          <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z" stroke="currentColor" strokeWidth="1.5"/>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-accent flex-shrink-0" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z" stroke="currentColor" strokeWidth="1.5" />
         </svg>
-        {LOCALE_LABELS[locale]}
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>
-          <path d="M2 3.5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        {LOCALE_LABELS[locale] ?? 'DE'}
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true" className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>
+          <path d="M2 3.5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-40 bg-surface border border-border rounded-xl overflow-hidden shadow-card z-[200]">
+        <div
+          role="listbox"
+          aria-label="Available languages"
+          className="absolute right-0 top-full mt-2 w-40 bg-surface border border-border rounded-xl overflow-hidden shadow-card z-[200]"
+        >
           {routing.locales.map((loc) => (
             <button
               key={loc}
+              type="button"
+              role="option"
+              aria-selected={loc === locale}
               onClick={() => switchLocale(loc)}
               className={`w-full text-left px-3 py-2 text-xs font-medium transition-colors duration-150 flex items-center justify-between ${
                 loc === locale

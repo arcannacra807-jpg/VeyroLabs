@@ -1,7 +1,4 @@
-'use client';
-import dynamic from 'next/dynamic';
-
-const ContactSlide = dynamic(() => import('./ContactSlide'), { ssr: false, loading: () => null });
+import ContactSlide from './ContactSlide';
 
 export default function ContactSlideLoader() {
   return <ContactSlide />;

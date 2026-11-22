@@ -1,9 +1,128 @@
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { routing } from '@/i18n/routing';
 import Grain from '@/components/Grain';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ClientShell from '@/components/ClientShell';
 import ContactSlideLoader from '@/components/ContactSlideLoader';
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
+function getFaqJsonLd(locale: string) {
+  if (locale === 'en') {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'How much does a website cost?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'A landing page starts from €1,200, a multi-page website runs €2,500–€4,500. Premium Custom with branding from €6,000. You always get a fixed quote before I start — no overrun.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'How long until my website is live?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'A landing page is typically done in 5–7 business days. A full website takes 2–4 weeks depending on scope. You see progress throughout — no months of radio silence.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: "What if I don't like the design?",
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: "We work in feedback rounds. You see real drafts, give feedback, I implement it. This continues until it's right — revisions are included in the price.",
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Do I really get the code afterwards?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Yes — completely and without restrictions. No subscription, no lock-in, no monthly fee. The code is yours from the day of handover. You can host it anywhere.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Do I need to provide copy and images myself?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: "It helps, but it's not required. If you don't have copy, I'll help write it. We'll source images together. We sort this out in the first call.",
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Can I reach you after launch?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: "Yes. I'm available after launch for changes, new pages or questions. No maintenance contract needed — just write when something's needed.",
+          },
+        },
+      ],
+    };
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'Was kostet eine Website bei dir?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Eine Landing Page beginnt ab 1.200 €, eine mehrseitige Website liegt zwischen 2.500 und 4.500 €. Premium Custom mit Branding ab 6.000 €. Du bekommst immer ein festes Angebot bevor ich anfange — kein Overrun.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Wie lange dauert es bis meine Website live ist?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Eine Landingpage ist typisch in 5–7 Werktagen fertig. Eine komplette Website dauert 2–4 Wochen je nach Umfang. Du siehst den Fortschritt laufend — kein monatelanger Blindflug.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Was wenn mir der Entwurf nicht gefällt?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Wir arbeiten in Feedback-Runden. Du siehst echte Entwürfe, gibst mir Feedback, ich baue es ein. Das geht so lange bis es passt — Revisionen sind im Preis inbegriffen.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Bekomme ich den Code danach wirklich?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Ja — vollständig und uneingeschränkt. Kein Abo, kein Lock-in, kein monatlicher Beitrag. Der Code gehört dir ab dem Tag der Übergabe. Du kannst ihn jederzeit woanders hosten.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Muss ich Texte und Bilder selbst liefern?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Es hilft, ist aber keine Pflicht. Wenn du keine Texte hast, unterstütze ich beim Schreiben. Bilder beschaffen wir gemeinsam. Wir klären das im ersten Gespräch.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Kann ich dich auch nach dem Launch noch kontaktieren?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Ja. Ich bin auch nach Launch erreichbar für Änderungen, neue Seiten oder Fragen. Kein Wartungsvertrag nötig — einfach schreiben wenn etwas gebraucht wird.',
+        },
+      },
+    ],
+  };
+}
 
 async function HeroSlide() {
   const t = await getTranslations('hero');
@@ -14,7 +133,7 @@ async function HeroSlide() {
         style={{ perspective: '1200px', transformStyle: 'preserve-3d' }}
       >
         <div className="hero-label label justify-center mb-6">
-          <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" aria-hidden="true" />
           {t('label')}
         </div>
         <h1
@@ -32,8 +151,8 @@ async function HeroSlide() {
           <a href="#leistungen" className="hero-cta btn-ghost magnetic-btn">{t('cta2')}</a>
         </div>
       </div>
-      <div className="hero-scroll absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-subtle">
-        <svg width="16" height="24" viewBox="0 0 16 24" fill="none" className="animate-bounce">
+      <div className="hero-scroll absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-subtle" aria-hidden="true">
+        <svg width="16" height="24" viewBox="0 0 16 24" fill="none" className="animate-bounce" aria-hidden="true">
           <path d="M8 4v16m0 0l-4-4m4 4l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       </div>
@@ -68,7 +187,7 @@ async function ProofSlide() {
                 {m.v}
               </div>
               <div className="text-white text-sm font-semibold">{m.l}</div>
-              <div className="text-muted/60 text-xs mt-1 leading-snug">{m.s}</div>
+              <div className="text-muted text-xs mt-1 leading-snug">{m.s}</div>
             </div>
           ))}
         </div>
@@ -79,7 +198,7 @@ async function ProofSlide() {
             className="magnetic-btn inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-accent/40 text-accent font-display font-bold text-sm hover:bg-accent/[0.06] transition-all duration-300 flex-shrink-0"
           >
             {t('cta')}
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
               <path d="M2 7h10m0 0l-3-3m3 3l-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </a>
@@ -109,7 +228,7 @@ async function ServicesSlide() {
             {t('h2b')}
           </span>
         </h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-12">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-12">
           {items.map((s) => (
             <div key={s.t} className="card p-6 group tilt-card pop-in">
               <h3 className="font-display text-lg font-bold text-white mb-3 group-hover:text-accent transition-colors duration-300">
@@ -146,7 +265,10 @@ async function ProcessSlide() {
               key={step.n}
               className="group flex gap-6 md:gap-10 p-6 rounded-2xl border border-border bg-surface/50 hover:border-accent/30 transition-all duration-300 pop-in tilt-card"
             >
-              <div className="font-display text-4xl font-bold text-white/[0.06] group-hover:text-accent/20 transition-colors leading-none flex-shrink-0">
+              <div
+                aria-hidden="true"
+                className="font-display text-4xl font-bold text-white/[0.06] group-hover:text-accent/20 transition-colors leading-none flex-shrink-0"
+              >
                 {step.n}
               </div>
               <div>
@@ -200,7 +322,7 @@ async function PricingSlide() {
         <span className="label mb-3 pop-in">{t('label')}</span>
         <div className="mb-5 pop-in">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-accent/30 bg-accent/[0.06] text-accent text-xs font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" aria-hidden="true" />
             {t('badge')}
           </span>
         </div>
@@ -224,11 +346,11 @@ async function PricingSlide() {
               )}
               <div className="font-display text-sm font-bold text-muted uppercase tracking-wider mb-1">{p.name}</div>
               <div className="font-display text-2xl font-bold text-white mb-1">{p.price}</div>
-              <p className="text-muted/70 text-sm mb-5 leading-relaxed">{p.desc}</p>
+              <p className="text-muted text-sm mb-5 leading-relaxed">{p.desc}</p>
               <div className="space-y-2.5 flex-1 mb-6">
                 {p.features.map((f) => (
                   <div key={f} className="text-sm text-muted flex gap-2.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-accent/70 flex-shrink-0 mt-1.5" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0 mt-1.5" aria-hidden="true" />
                     <span>{f}</span>
                   </div>
                 ))}
@@ -254,7 +376,7 @@ async function PricingSlide() {
         <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 pop-in">
           {trustItems.map((item) => (
             <span key={item} className="flex items-center gap-2 text-muted text-sm">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="flex-shrink-0">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="flex-shrink-0" aria-hidden="true">
                 <path d="M2.5 7l3 3 6-6" stroke="#00FF88" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               {item}
@@ -297,9 +419,21 @@ async function FAQSlide() {
   );
 }
 
-export default function HomePage() {
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const faqJsonLd = getFaqJsonLd(locale);
+
   return (
     <div className="min-h-screen bg-bg">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <Grain />
       <ClientShell />
       <Navbar />
