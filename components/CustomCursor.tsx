@@ -1,47 +1,37 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { damp, stageStore } from '@/lib/stage-store';
 
 export default function CustomCursor() {
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if ('ontouchstart' in window) return;
+    if (window.matchMedia('(pointer: coarse)').matches) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const dot = dotRef.current;
     const ring = ringRef.current;
     if (!dot || !ring) return;
 
-    let mouseX = -100;
-    let mouseY = -100;
     let ringX = -100;
     let ringY = -100;
-    let rafId = 0;
-    let active = false;
 
-    const animate = () => {
-      ringX += (mouseX - ringX) * 0.15;
-      ringY += (mouseY - ringY) * 0.15;
+    // Runs inside the single master GSAP ticker — zero extra requestAnimationFrame loops
+    const onFrame = (dt: number) => {
+      if (!stageStore.pointerActive) return;
+      const mx = stageStore.pointerClientX;
+      const my = stageStore.pointerClientY;
+
+      dot.style.transform = `translate3d(${mx}px, ${my}px, 0) translate(-50%, -50%)`;
+
+      ringX = damp(ringX, mx, 11.5, dt);
+      ringY = damp(ringY, my, 11.5, dt);
       ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
-
-      if (Math.hypot(mouseX - ringX, mouseY - ringY) > 0.2) {
-        rafId = requestAnimationFrame(animate);
-      } else {
-        active = false;
-      }
     };
 
-    const onMouseMove = (e: MouseEvent) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      dot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
-      if (!active) {
-        active = true;
-        rafId = requestAnimationFrame(animate);
-      }
-    };
+    stageStore.frameSubscribers.add(onFrame);
 
     const onMouseOver = (e: MouseEvent) => {
       if ((e.target as HTMLElement | null)?.closest('a, button, [role="button"]')) {
@@ -55,7 +45,6 @@ export default function CustomCursor() {
       }
     };
 
-    window.addEventListener('mousemove', onMouseMove, { passive: true });
     document.addEventListener('mouseover', onMouseOver, { passive: true });
     document.addEventListener('mouseout', onMouseOut, { passive: true });
 
@@ -65,10 +54,9 @@ export default function CustomCursor() {
     document.head.appendChild(style);
 
     return () => {
-      window.removeEventListener('mousemove', onMouseMove);
+      stageStore.frameSubscribers.delete(onFrame);
       document.removeEventListener('mouseover', onMouseOver);
       document.removeEventListener('mouseout', onMouseOut);
-      cancelAnimationFrame(rafId);
       document.body.style.cursor = '';
       style.remove();
     };

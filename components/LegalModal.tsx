@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useLocale } from 'next-intl';
+import { stageStore } from '@/lib/stage-store';
 import {
   ImpressumContent,
   DatenschutzContent,
@@ -18,9 +19,9 @@ export default function LegalModal({ page, onClose }: LegalModalProps) {
   const locale = useLocale();
 
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
+    stageStore.setScrollLocked(true);
     return () => {
-      document.body.style.overflow = '';
+      stageStore.setScrollLocked(false);
     };
   }, []);
 
@@ -53,7 +54,10 @@ export default function LegalModal({ page, onClose }: LegalModalProps) {
       aria-label={title}
     >
       <div className="absolute inset-0 bg-bg/90 backdrop-blur-md" onClick={onClose} />
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-surface rounded-2xl border border-border m-4 mt-16 p-8 md:p-12">
+      <div
+        data-lenis-prevent
+        className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-surface rounded-2xl border border-border m-4 mt-16 p-8 md:p-12"
+      >
         <button
           type="button"
           onClick={onClose}

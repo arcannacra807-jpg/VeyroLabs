@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { stageStore } from '@/lib/stage-store';
 import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Navbar() {
@@ -10,6 +11,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSlide, setActiveSlide] = useState('');
   const progressRef = useRef<HTMLDivElement>(null);
+  const scrolledRef = useRef(false);
 
   const NAV_LINKS = [
     { label: t('services'), href: '#leistungen', slide: 'services' },
@@ -19,15 +21,45 @@ export default function Navbar() {
   ];
 
   useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 40);
+    const applyProgress = (y: number, progress: number) => {
+      const nextScrolled = y > 40;
+      if (nextScrolled !== scrolledRef.current) {
+        scrolledRef.current = nextScrolled;
+        setScrolled(nextScrolled);
+      }
       if (progressRef.current) {
-        const h = document.documentElement.scrollHeight - window.innerHeight;
-        progressRef.current.style.width = h > 0 ? `${(window.scrollY / h) * 100}%` : '0%';
+        // GPU-only scaleX transform — zero layout/reflow cost
+        progressRef.current.style.transform = `scaleX(${Math.max(0, Math.min(1, progress))})`;
       }
     };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+
+    // Single-RAF path when Lenis/GSAP master ticker is active (Tier 2 & 3)
+    const onFrame = () => {
+      applyProgress(stageStore.scrollY, stageStore.scrollProgress);
+    };
+    stageStore.frameSubscribers.add(onFrame);
+
+    // Passive fallback for Tier 1 (where WebGL + Lenis ticker are intentionally skipped)
+    let docSpan = 1;
+    const measure = () => {
+      docSpan = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    };
+    measure();
+
+    const onNativeScroll = () => {
+      if (stageStore.lenis) return;
+      const y = window.scrollY;
+      applyProgress(y, y / docSpan);
+    };
+
+    window.addEventListener('resize', measure, { passive: true });
+    window.addEventListener('scroll', onNativeScroll, { passive: true });
+
+    return () => {
+      stageStore.frameSubscribers.delete(onFrame);
+      window.removeEventListener('resize', measure);
+      window.removeEventListener('scroll', onNativeScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -45,9 +77,9 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = mobileOpen ? 'hidden' : '';
+    stageStore.setScrollLocked(mobileOpen);
     return () => {
-      document.body.style.overflow = '';
+      if (mobileOpen) stageStore.setScrollLocked(false);
     };
   }, [mobileOpen]);
 
@@ -61,12 +93,19 @@ export default function Navbar() {
       <div
         ref={progressRef}
         aria-hidden="true"
-        className="absolute bottom-0 left-0 h-[1.5px] bg-accent/50 transition-[width] duration-100 pointer-events-none"
-        style={{ width: '0%' }}
+        className="absolute bottom-0 left-0 w-full h-[1.5px] bg-accent/60 origin-left pointer-events-none will-change-transform"
+        style={{ transform: 'scaleX(0)' }}
       />
 
       <div className="max-w-6xl mx-auto px-5 sm:px-8 lg:px-10 flex items-center justify-between h-[72px]">
-        <a href="#" className="relative z-[110]">
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            stageStore.scrollTo(0, 0);
+          }}
+          className="relative z-[110]"
+        >
           <span className="font-display text-xl font-bold tracking-tight text-white">Veyro Labs</span>
         </a>
 
@@ -116,55 +155,37 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile menu */}
-      <div
-        aria-hidden={!mobileOpen}
-        className={`fixed inset-0 z-[105] bg-bg md:hidden flex flex-col items-center justify-center gap-6 transition-all duration-500 ease-out ${
-          mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        {NAV_LINKS.map((link, i) => (
-          <a
-            key={link.href}
-            href={link.href}
-            tabIndex={mobileOpen ? 0 : -1}
-            onClick={() => setMobileOpen(false)}
-            className={`font-display text-2xl font-bold transition-all duration-300 ${
-              activeSlide === link.slide ? 'text-accent' : 'text-white hover:text-accent'
-            }`}
-            style={{
-              transitionDelay: mobileOpen ? `${i * 60}ms` : '0ms',
-              opacity: mobileOpen ? 1 : 0,
-              transform: mobileOpen ? 'translateY(0)' : 'translateY(12px)',
-            }}
-          >
-            {link.label}
-          </a>
-        ))}
+      {/* Mobile menu — conditionally mounted so closed drawer never exposes focusable descendants */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-[105] bg-bg md:hidden flex flex-col items-center justify-center gap-6">
+          {NAV_LINKS.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              onClick={() => setMobileOpen(false)}
+              className={`font-display text-2xl font-bold transition-colors duration-300 ${
+                activeSlide === link.slide ? 'text-accent' : 'text-white hover:text-accent'
+              }`}
+            >
+              {link.label}
+            </a>
+          ))}
 
-        <div
-          className="flex flex-col items-center gap-3 mt-4"
-          style={{
-            transitionDelay: mobileOpen ? '240ms' : '0ms',
-            opacity: mobileOpen ? 1 : 0,
-            transform: mobileOpen ? 'translateY(0)' : 'translateY(12px)',
-            transition: 'opacity 300ms, transform 300ms',
-          }}
-        >
-          <a
-            href="#kontakt"
-            tabIndex={mobileOpen ? 0 : -1}
-            onClick={() => setMobileOpen(false)}
-            className="btn-primary"
-          >
-            {t('cta')}
-          </a>
-          <span className="text-subtle text-xs">{t('tagline')}</span>
-          <div className="mt-2">
-            <LanguageSwitcher />
+          <div className="flex flex-col items-center gap-3 mt-4">
+            <a
+              href="#kontakt"
+              onClick={() => setMobileOpen(false)}
+              className="btn-primary"
+            >
+              {t('cta')}
+            </a>
+            <span className="text-subtle text-xs">{t('tagline')}</span>
+            <div className="mt-2">
+              <LanguageSwitcher />
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </nav>
   );
 }

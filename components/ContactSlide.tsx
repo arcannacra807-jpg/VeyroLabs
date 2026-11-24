@@ -164,7 +164,10 @@ export default function ContactSlide() {
           </form>
           <p className="text-subtle text-sm text-center mt-8 pop-in">
             {t('directEmail')}{' '}
-            <a href="mailto:veyro-labs@gmx.de" className="text-accent hover:underline">
+            <a
+              href="mailto:veyro-labs@gmx.de"
+              className="text-accent underline underline-offset-4 hover:text-white transition-colors"
+            >
               veyro-labs@gmx.de
             </a>
           </p>

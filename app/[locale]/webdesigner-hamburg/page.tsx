@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
-import Grain from '@/components/Grain';
-import ClientShell from '@/components/ClientShell';
 import ContactSlide from '@/components/ContactSlide';
 import Footer from '@/components/Footer';
 
@@ -232,16 +231,14 @@ export default async function Page({
   setRequestLocale(locale);
 
   return (
-    <div className="min-h-screen bg-bg">
+    <div className="min-h-screen bg-transparent">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(pageJsonLd) }}
       />
-      <Grain />
-      <ClientShell />
       <header className="fixed top-0 left-0 right-0 z-[100] bg-bg/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 lg:px-10 flex items-center justify-between h-[72px]">
-          <a href="/de" className="font-display text-xl font-bold tracking-tight text-white">Veyro Labs</a>
+          <Link href="/de" className="font-display text-xl font-bold tracking-tight text-white">Veyro Labs</Link>
           <div className="flex items-center gap-4">
             <a href="#preise" className="hidden sm:block text-sm font-medium text-muted hover:text-white transition-colors">Preise</a>
             <a href="#kontakt" className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-display font-bold rounded-xl bg-accent text-bg transition-all duration-300 hover:shadow-glow hover:-translate-y-0.5">Kostenloses Erstgespräch</a>
@@ -254,7 +251,7 @@ export default async function Page({
             <nav aria-label="Breadcrumb" className="mb-8">
               <ol className="flex items-center gap-2 text-xs text-subtle">
                 <li>
-                  <a href="/de" className="hover:text-muted transition-colors">Startseite</a>
+                  <Link href="/de" className="hover:text-muted transition-colors">Startseite</Link>
                 </li>
                 <li aria-hidden="true">/</li>
                 <li className="text-muted">Webdesigner Hamburg</li>
@@ -505,7 +502,7 @@ export default async function Page({
             </div>
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 pop-in">
               <a href="https://onyx-showcase.vercel.app" target="_blank" rel="noopener noreferrer" className="magnetic-btn inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border-light text-white font-display font-bold text-sm hover:border-accent/40 transition-all duration-300">ONYX-Showcase ansehen<span className="text-subtle font-normal">(Demo, kein Kundenprojekt)</span></a>
-              <a href="/de/website-erstellen-lassen" className="text-muted text-sm hover:text-white transition-colors">Website erstellen lassen — so läuft das deutschlandweit →</a>
+              <Link href="/de/website-erstellen-lassen" className="text-muted text-sm hover:text-white transition-colors">Website erstellen lassen — so läuft das deutschlandweit →</Link>
             </div>
             <p className="text-subtle text-xs mt-8">Zuletzt aktualisiert: Juni 2026</p>
           </div>

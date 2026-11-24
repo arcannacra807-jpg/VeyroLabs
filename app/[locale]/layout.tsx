@@ -1,23 +1,25 @@
 import type { Metadata } from 'next';
-import { Syne, Inter } from 'next/font/google';
+import localFont from 'next/font/local';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { routing } from '@/i18n/routing';
+import Grain from '@/components/Grain';
+import PersistentStage from '@/components/PersistentStage';
 import '../globals.css';
 
-const syne = Syne({
-  subsets: ['latin', 'latin-ext'],
-  weight: ['700', '800'],
+const syne = localFont({
+  src: '../fonts/syne-var.woff2',
+  weight: '700 800',
   variable: '--font-syne',
   display: 'swap',
 });
 
-const inter = Inter({
-  subsets: ['latin', 'latin-ext'],
-  weight: ['400', '600'],
+const inter = localFont({
+  src: '../fonts/inter-var.woff2',
+  weight: '400 700',
   variable: '--font-inter',
   display: 'swap',
 });
@@ -182,7 +184,14 @@ export default async function LocaleLayout({
   if (!hasLocale(routing.locales, locale)) notFound();
 
   setRequestLocale(locale);
-  const messages = await getMessages();
+  const allMessages = await getMessages();
+  // Only ship namespaces actually consumed by Client Components (cuts hydration JSON by ~65%)
+  const clientMessages = {
+    nav: allMessages.nav,
+    contact: allMessages.contact,
+    footer: allMessages.footer,
+    mobileCta: allMessages.mobileCta,
+  };
 
   return (
     <html lang={locale} className={`${syne.variable} ${inter.variable}`}>
@@ -194,7 +203,9 @@ export default async function LocaleLayout({
         />
       </head>
       <body>
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider messages={clientMessages}>
+          <Grain />
+          <PersistentStage />
           {children}
         </NextIntlClientProvider>
         <Analytics />

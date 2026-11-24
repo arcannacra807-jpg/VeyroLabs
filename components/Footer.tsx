@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getTranslations, getLocale } from 'next-intl/server';
 import FooterButtons from './FooterButtons';
 
@@ -9,29 +10,29 @@ export default async function Footer() {
     <footer className="relative z-10 py-10 border-t border-border">
       <div className="max-w-6xl mx-auto px-5 sm:px-8 lg:px-10">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <a href={`/${locale}`} className="font-display text-white font-bold text-lg tracking-tight">
+          <Link href={`/${locale}`} className="font-display text-white font-bold text-lg tracking-tight">
             Veyro Labs
-          </a>
+          </Link>
 
           <div className="flex flex-wrap items-center justify-center gap-6 text-muted text-sm">
-            <a href={`/${locale}#leistungen`} className="hover:text-white transition-colors">{t('services')}</a>
-            <a href={`/${locale}#ablauf`} className="hover:text-white transition-colors">{t('process')}</a>
-            <a href={`/${locale}#preis`} className="hover:text-white transition-colors">{t('pricing')}</a>
-            <a href={`/${locale}#kontakt`} className="hover:text-white transition-colors">{t('contact')}</a>
+            <Link href={`/${locale}#leistungen`} className="hover:text-white transition-colors">{t('services')}</Link>
+            <Link href={`/${locale}#ablauf`} className="hover:text-white transition-colors">{t('process')}</Link>
+            <Link href={`/${locale}#preis`} className="hover:text-white transition-colors">{t('pricing')}</Link>
+            <Link href={`/${locale}#kontakt`} className="hover:text-white transition-colors">{t('contact')}</Link>
             {locale === 'de' && (
               <>
-                <a href="/de/website-erstellen-lassen" className="hover:text-white transition-colors">
+                <Link href="/de/website-erstellen-lassen" className="hover:text-white transition-colors">
                   Website erstellen lassen
-                </a>
-                <a href="/de/webdesigner-hamburg" className="hover:text-white transition-colors">
+                </Link>
+                <Link href="/de/webdesigner-hamburg" className="hover:text-white transition-colors">
                   Webdesigner Hamburg
-                </a>
+                </Link>
               </>
             )}
             {locale === 'en' && (
-              <a href="/en/hire-nextjs-developer" className="hover:text-white transition-colors">
+              <Link href="/en/hire-nextjs-developer" className="hover:text-white transition-colors">
                 Hire a Next.js Developer
-              </a>
+              </Link>
             )}
           </div>
 

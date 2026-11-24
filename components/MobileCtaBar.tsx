@@ -2,39 +2,66 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { usePathname } from 'next/navigation';
+import { stageStore } from '@/lib/stage-store';
 
 export default function MobileCtaBar() {
   const t = useTranslations('mobileCta');
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const contactVisible = useRef(false);
+  const visibleRef = useRef(false);
+
+  const isLegalRoute = pathname.endsWith('/impressum') || pathname.endsWith('/datenschutz');
 
   useEffect(() => {
-    const contactEl = document.getElementById('kontakt');
+    if (isLegalRoute) {
+      setVisible(false);
+      return;
+    }
 
-    const scrollHandler = () => {
-      if (!contactVisible.current) {
-        setVisible(window.scrollY > window.innerHeight * 0.6);
+    const contactEl = document.getElementById('kontakt');
+    const threshold = window.innerHeight * 0.6;
+
+    const updateVisibility = (y: number) => {
+      const next = !contactVisible.current && y > threshold;
+      if (next !== visibleRef.current) {
+        visibleRef.current = next;
+        setVisible(next);
       }
+    };
+
+    const onFrame = () => updateVisibility(stageStore.scrollY);
+    stageStore.frameSubscribers.add(onFrame);
+
+    const onNativeScroll = () => {
+      if (!stageStore.lenis) updateVisibility(window.scrollY);
     };
 
     const observer = contactEl
       ? new IntersectionObserver(
           ([entry]) => {
             contactVisible.current = entry.isIntersecting;
-            if (entry.isIntersecting) setVisible(false);
+            if (entry.isIntersecting && visibleRef.current) {
+              visibleRef.current = false;
+              setVisible(false);
+            }
           },
           { rootMargin: '0px 0px -20% 0px', threshold: 0 }
         )
       : null;
 
-    window.addEventListener('scroll', scrollHandler, { passive: true });
+    window.addEventListener('scroll', onNativeScroll, { passive: true });
     if (observer && contactEl) observer.observe(contactEl);
 
     return () => {
-      window.removeEventListener('scroll', scrollHandler);
+      stageStore.frameSubscribers.delete(onFrame);
+      window.removeEventListener('scroll', onNativeScroll);
       observer?.disconnect();
     };
-  }, []);
+  }, [pathname, isLegalRoute]);
+
+  if (isLegalRoute) return null;
 
   return (
     <div

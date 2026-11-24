@@ -42,7 +42,6 @@ export default function LanguageSwitcher() {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        aria-label="Switch language"
         aria-expanded={open}
         aria-haspopup="listbox"
         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-display font-bold text-muted hover:text-white border border-border hover:border-border-light transition-all duration-200"
@@ -51,6 +50,7 @@ export default function LanguageSwitcher() {
           <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
           <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z" stroke="currentColor" strokeWidth="1.5" />
         </svg>
+        <span className="sr-only">Switch language: </span>
         {LOCALE_LABELS[locale] ?? 'DE'}
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true" className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>
           <path d="M2 3.5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />

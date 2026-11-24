@@ -1,9 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
-import Grain from '@/components/Grain';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import ClientShell from '@/components/ClientShell';
 import ContactSlideLoader from '@/components/ContactSlideLoader';
 
 export function generateStaticParams() {
@@ -267,7 +265,7 @@ async function ProcessSlide() {
             >
               <div
                 aria-hidden="true"
-                className="font-display text-4xl font-bold text-white/[0.06] group-hover:text-accent/20 transition-colors leading-none flex-shrink-0"
+                className="font-display text-4xl font-bold text-white/45 group-hover:text-accent/70 transition-colors leading-none flex-shrink-0"
               >
                 {step.n}
               </div>
@@ -429,13 +427,11 @@ export default async function HomePage({
   const faqJsonLd = getFaqJsonLd(locale);
 
   return (
-    <div className="min-h-screen bg-bg">
+    <div className="min-h-screen bg-transparent">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
-      <Grain />
-      <ClientShell />
       <Navbar />
       <main className="relative z-10">
         <HeroSlide />
